@@ -1,0 +1,20 @@
+{
+  "name": "console-graphql",
+  "vendor": "vtex",
+  "version": "0.1.0",
+  "title": "IO Console API",
+  "description": "VTEX developer console API",
+  "mustUpdateAt": "2019-10-16",
+  "scripts": {
+    "postreleasy": "vtex publish --public"
+  },
+  "builders": {
+    "node": "3.x",
+    "graphql": "1.x"
+  },
+  "policies": [
+    {
+      "name": "read-workspace-apps"
+    }
+  ]
+}
