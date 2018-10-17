@@ -12,9 +12,17 @@
     "node": "3.x",
     "graphql": "1.x"
   },
+  "credential": "relative",
   "policies": [
     {
       "name": "read-workspace-apps"
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "api.vtex.com",
+        "path": "/api/storedash/{{account}}/metrics/*"
+      }
     }
   ]
 }

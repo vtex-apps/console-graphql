@@ -8,17 +8,19 @@ const cacheStorage = new LRUCache<string, any>({
   max: 1000
 })
 
-const prepare = (handler: any) => async (root, args, ctx: Context, info) => {
+const prepare = <P, A, I, R>(handler: Resolver<P, A, I, R>) => (root: P, args: A, ctx: Context, info: I): Promise<R> => {
   const {vtex} = ctx
-  ctx.resources.apps = new Apps(vtex, {cacheStorage})
+  ctx.resources = {
+    apps: new Apps(vtex, {cacheStorage})
+  }
 
-  await handler(root, args, ctx, info)
+  return handler(root, args, ctx, info)
 }
 
 export const resolvers = {
   Query: map(prepare, {
     appsWithStats,
     data,
-    spec
+    spec,
   })
 }

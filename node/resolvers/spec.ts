@@ -1,4 +1,5 @@
 import { Apps, DiskCache, LRUCache, MultilayeredCache } from '@vtex/api'
+import { ApolloError } from 'apollo-server-errors'
 import { keys, merge, reduce } from 'ramda'
 
 const CONSOLE_GRAPHQL = 'vtex.console-graphql@0.x'
@@ -34,22 +35,22 @@ const fetchJsonSpec = (apps: Apps, app: string) => () =>
   .then(JSON.parse)
   .catch(ignoreNotFound(null))
 
-export const spec = async (root: any, args: Args, ctx: Context, info: any) => {
+export const spec = async (root: any, args: Args, ctx: Context, info: any): Promise<string> => {
   const {resources: {apps}}  = ctx
   const {name} = args
   const maybeAppsWithSpecs = await apps.getDependencies(CONSOLE_GRAPHQL).then(keys)
 
-  const specs = await Promise.map(
+  const availableSpecs = await Promise.map(
     maybeAppsWithSpecs,
     (app: string) => specStorage.get(cacheKey(app), fetchJsonSpec(apps, app))
   )
-  
-  const specsObj: any = reduce(merge, {}, specs)
+
+  const specsObj: any = reduce(merge, {}, availableSpecs)
   
   const selectedSpec = specsObj[name]
   
   if (selectedSpec) { 
-    return selectedSpec
+    return JSON.stringify(selectedSpec)
   }
 
   throw new ApolloError(`Spec ${name} was not found in our database`)

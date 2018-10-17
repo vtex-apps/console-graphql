@@ -1,11 +1,21 @@
+input StoreDashInput {
+  aggregateBy: [String]
+  fields: [String]
+  from: String!
+  interval: String
+  operation: String
+  size: Int 
+  timezone: String 
+  to: String!
+}
+
 type Query {
   appsWithStats: [String]
 
   data (
-    appId: String!, 
-    name: String!, 
-    fromTime: Float = 0, 
-    toTime: Float = 1
+    appId: String!
+    name: String!
+    params: StoreDashInput
   ): String
 
   spec (
