@@ -1,5 +1,5 @@
 import { Apps, DiskCache, LRUCache, MultilayeredCache } from '@vtex/api'
-import { keys, reduce, merge } from 'ramda'
+import { keys, merge, reduce } from 'ramda'
 
 const CONSOLE_GRAPHQL = 'vtex.console-graphql@0.x'
 
@@ -46,11 +46,11 @@ export const spec = async (root: any, args: Args, ctx: Context, info: any) => {
   
   const specsObj: any = reduce(merge, {}, specs)
   
-  const spec = specsObj[name]
+  const selectedSpec = specsObj[name]
   
-  if (spec) { 
-    return spec
+  if (selectedSpec) { 
+    return selectedSpec
   }
 
-  throw new ApolloError
+  throw new ApolloError(`Spec ${name} was not found in our database`)
 }

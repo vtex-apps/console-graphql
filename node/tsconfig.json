@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "types": [
+      "bluebird-global",
+      "node"
+    ],
+    "lib": ["es2017"],
+    "typeRoots": ["node_modules/@types"],
+    "target": "es2017",
+    "module": "commonjs",
+    "sourceMap": false,
+    "outDir": "service",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
+  },
+  "typeAcquisition": {
+    "enable": false
+  },
+  "include": ["./**/*"],
+  "exclude": ["node_modules"]
+}
