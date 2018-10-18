@@ -9,16 +9,56 @@ input StoreDashInput {
   to: String!
 }
 
+type Layout {
+  specLocator: SpecLocator
+  spec: String
+}
+
+type SpecLocator {
+  appId: String
+  specName: String
+}
+
 type Query {
   appsWithStats: [String] 
 
   data (
-    appId: String!
-    name: String!
+    appId: String!,
+    name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
 
   spec (
-    name: String!
+    specName: String!,
+    appId: String
   ): String
+
+  """ custom.json """
+  specs: [SpecLocator]
+
+  layout (
+    appName: String!
+  ): [Layout]
+}
+
+type Mutation {
+  """ Vira um spec custom """
+  createSpec (
+    specName: String!,
+    serializedSchema: String!
+  ): Boolean
+
+  """ Deleta Custom Spec """
+  deleteSpec (
+    specName: String! 
+  )
+
+  saveLayout (
+    appName: String!
+    specLocators: [SpecLocator!]!
+  ): Boolean
+
+  resetLayout (
+    appName: String!
+  ): Boolean
 }

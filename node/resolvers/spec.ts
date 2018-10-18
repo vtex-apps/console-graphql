@@ -1,57 +1,96 @@
-import { Apps, DiskCache, LRUCache, MultilayeredCache } from '@vtex/api'
+import { isValidAppIdOrLocator } from '@vtex/api'
 import { ApolloError } from 'apollo-server-errors'
-import { keys, merge, reduce } from 'ramda'
+import { compose, flatten, keys, map, mapObjIndexed, partial, prop, values, zipObj } from 'ramda'
 
-const CONSOLE_GRAPHQL = 'vtex.console-graphql@0.x'
+import { CUSTOM_SPEC_APP_ID, CUSTOM_SPEC_FILE, VBASE_BUCKET } from '../common/globals'
+import { ignoreNotFound } from '../common/notFound'
+import { appsWithSpecs, getSpec, getSpecs } from '../common/spec'
 
-interface Args {
-  name: string
+const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => maybeSpecs && compose(
+  map((specName: string) => ({specName, appId})),
+  keys
+)(maybeSpecs) as SpecLocator[]
+
+export const specs = async (root, args: void, ctx: Context, info): Promise<SpecLocator[]> => {
+  const {resources: {vbase, apps}} = ctx
+  const appIdsWithStats = await appsWithSpecs(apps)
+  const getSpecsForAppId = partial(getSpecs, [apps])
+
+  const [appSpecs, maybeCustomSpecs] = await Promise.all([
+    Promise.map(appIdsWithStats, getSpecsForAppId),
+    vbase.getJSON<Maybe<Specs>>(VBASE_BUCKET, CUSTOM_SPEC_FILE, true)
+  ])
+
+  const specsByAppId = zipObj(appIdsWithStats, appSpecs)
+  const appSpecsLocators = compose(
+    flatten,
+    values,
+    mapObjIndexed(maybeSpecsToSpecLocators)
+  )(specsByAppId) as SpecLocator[]
+
+  const customSpecsLocators = maybeSpecsToSpecLocators(maybeCustomSpecs, CUSTOM_SPEC_APP_ID)
+  
+  console.log('implement UNIQ !!!')
+
+  return [
+    ...appSpecsLocators,
+    ...customSpecsLocators
+  ]
 }
 
-const CACHE_PATH = '/cache/console-immutable-assets/v0'
-const SPEC_PATH = 'dist/vtex.console-graphql/spec0x.vega.json'
-
-const specStorage = new MultilayeredCache<string, any>([
-  new LRUCache({
-    max: 100
-  }),
-  new DiskCache(CACHE_PATH)
-])
-
-const cacheKey = (app: string) => `${app}/${SPEC_PATH}`.replace(/\W/g, '_')
-
-const ignoreNotFound = <T>(fallback: T) => (error: any): T => {
-  if (error.response && error.response.status === 404) {
-    return fallback
-  }
-  throw error
+interface SpecArgs {
+  specName: string
+  appId?: string
 }
 
-const toString = ({data}: {data: Buffer}) => data.toString()
+export const spec = async (root, args: SpecArgs, ctx: Context, info) => {
+  const {resources: {vbase, apps}} = ctx
+  const {specName, appId} = args
+  let found: string
 
-const fetchJsonSpec = (apps: Apps, app: string) => () => 
-  apps.getAppFile(app, SPEC_PATH)
-  .then(toString)
-  .then(JSON.parse)
-  .catch(ignoreNotFound(null))
-
-export const spec = async (root: any, args: Args, ctx: Context, info: any): Promise<string> => {
-  const {resources: {apps}}  = ctx
-  const {name} = args
-  const maybeAppsWithSpecs = await apps.getDependencies(CONSOLE_GRAPHQL).then(keys)
-
-  const availableSpecs = await Promise.map(
-    maybeAppsWithSpecs,
-    (app: string) => specStorage.get(cacheKey(app), fetchJsonSpec(apps, app))
-  )
-
-  const specsObj: any = reduce(merge, {}, availableSpecs)
+  if (appId && isValidAppIdOrLocator(appId)) {
+    found = await getSpec(apps, appId, specName)
+  } else {
+    const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE, true)
+    found = prop(specName, customSpecs)
+  }
   
-  const selectedSpec = specsObj[name]
-  
-  if (selectedSpec) { 
-    return JSON.stringify(selectedSpec)
+  if (!found) {
+    throw new ApolloError(`Vega spec ${specName} was not found for app ${appId}`)
   }
 
-  throw new ApolloError(`Spec ${name} was not found in our database`)
+  return found
+}
+
+interface CreateSpecArgs {
+  specName: string
+  serializedSchema: string
+}
+
+export const createSpec = async (root, args: CreateSpecArgs, ctx: Context, info) => {
+  const {resources: {vbase}} = ctx
+  const {specName, serializedSchema} = args
+  const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE).catch(ignoreNotFound({}))
+
+  if (customSpecs && customSpecs[specName]) { 
+    throw new ApolloError(`Custom Vega spec with name ${specName} already exists`, 'ERR_SPEC_ALREADY_EXISTS')
+  }
+
+  customSpecs[specName] = serializedSchema
+
+  return vbase.saveJSON(VBASE_BUCKET, CUSTOM_SPEC_FILE, customSpecs)
+}
+
+interface DeleteSpecArgs {
+  specName: string
+}
+
+export const deleteSpec = async (root, args: DeleteSpecArgs, ctx: Context, info) => {
+  const {resources: {vbase}} = ctx
+  const {specName} = args
+  const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE).catch(ignoreNotFound({}))
+
+  customSpecs[specName] = undefined
+
+  return vbase.saveJSON(VBASE_BUCKET, CUSTOM_SPEC_FILE, customSpecs)
 }

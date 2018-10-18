@@ -1,10 +1,11 @@
-import { Apps, ServiceContext } from '@vtex/api'
+import { Apps, ServiceContext, VBase } from '@vtex/api'
 import { StoreDashDataSource } from './dataSources/storedash'
 
 declare global {
   interface Context extends ServiceContext {
     resources: {
       apps: Apps
+      vbase: VBase
     }
     dataSources: DataSources
   }
@@ -24,6 +25,17 @@ declare global {
     size?: number
     timezone?: string
     to?: string
+  }
+
+  type Maybe<T> = T | void 
+
+  interface Specs {
+    [name: string]: string
+  }
+
+  interface SpecLocator {
+    appId: string
+    specName: string
   }
 }
 
