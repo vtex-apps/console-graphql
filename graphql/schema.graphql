@@ -10,13 +10,13 @@ input StoreDashInput {
 }
 
 type Query {
-  appsWithStats: [String]
+  appsWithStats: [String] 
 
   data (
     appId: String!
     name: String!
     params: StoreDashInput
-  ): String
+  ): String @cacheControl(scope: PRIVATE)
 
   spec (
     name: String!

@@ -10,7 +10,7 @@ export const appsWithStats = async (root, args, ctx: Context, info) => {
   // TODO: remove comments before releasing !!!!!!!!
   return compose(
     reject(nullable),
-    map(removeVersionFromAppId),
+    // map(removeVersionFromAppId),
     filter(startsWith('vtex'))
   )(deps)
 }
