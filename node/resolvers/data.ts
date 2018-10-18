@@ -31,5 +31,18 @@ export const data = async (root, args: Args, ctx: Context, info) => {
     throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
   }
 
-  return storeDash.data(NAMESPACE, name, params).then(JSON.stringify)
+  // return storeDash.data(NAMESPACE, name, params).then(JSON.stringify)
+  const MOCK_RESPONSE = {
+    'table': [
+      {'category': 'A', 'amount': 28},
+      {'category': 'B', 'amount': 55},
+      {'category': 'C', 'amount': 43},
+      {'category': 'D', 'amount': 91},
+      {'category': 'E', 'amount': 81},
+      {'category': 'F', 'amount': 53},
+      {'category': 'G', 'amount': 19},
+      {'category': 'H', 'amount': 87}
+    ]
+  }
+  return JSON.stringify(MOCK_RESPONSE)
 }

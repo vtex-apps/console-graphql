@@ -19,6 +19,11 @@ type SpecLocator {
   specName: String
 }
 
+input SpecLocatorInput {
+  appId: String
+  specName: String
+}
+
 type Query {
   appsWithStats: [String] 
 
@@ -51,11 +56,11 @@ type Mutation {
   """ Deleta Custom Spec """
   deleteSpec (
     specName: String! 
-  )
+  ): Boolean
 
   saveLayout (
     appName: String!
-    specLocators: [SpecLocator!]!
+    specLocators: [SpecLocatorInput!]!
   ): Boolean
 
   resetLayout (

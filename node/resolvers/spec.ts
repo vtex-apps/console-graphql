@@ -6,10 +6,12 @@ import { CUSTOM_SPEC_APP_ID, CUSTOM_SPEC_FILE, VBASE_BUCKET } from '../common/gl
 import { ignoreNotFound } from '../common/notFound'
 import { appsWithSpecs, getSpec, getSpecs } from '../common/spec'
 
-const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => maybeSpecs && compose(
-  map((specName: string) => ({specName, appId})),
-  keys
-)(maybeSpecs) as SpecLocator[]
+const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => maybeSpecs 
+  ? compose(
+    map((specName: string) => ({specName, appId})),
+    keys
+  )(maybeSpecs) as SpecLocator[]
+  : [] 
 
 export const specs = async (root, args: void, ctx: Context, info): Promise<SpecLocator[]> => {
   const {resources: {vbase, apps}} = ctx
@@ -59,7 +61,7 @@ export const spec = async (root, args: SpecArgs, ctx: Context, info) => {
     throw new ApolloError(`Vega spec ${specName} was not found for app ${appId}`)
   }
 
-  return found
+  return JSON.stringify(found)
 }
 
 interface CreateSpecArgs {

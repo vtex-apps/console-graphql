@@ -18,6 +18,9 @@
       "name": "read-workspace-apps"
     },
     {
+      "name": "vbase-read-write"
+    },
+    {
       "name": "outbound-access",
       "attrs": {
         "host": "api.vtex.com",
