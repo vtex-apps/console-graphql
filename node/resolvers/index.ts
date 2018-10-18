@@ -4,10 +4,8 @@ import { map } from 'ramda'
 import { CACHE_PATH } from '../common/globals'
 import { appsWithStats } from './appsWithStats'
 import { data } from './data'
-import { layout } from './layout'
-import { saveSpec } from './saveSpec'
-import { saveSpecLayoutForAppName } from './saveSpecLayoutForAppName'
-import { spec } from './spec'
+import { layout, resetLayout, saveLayout } from './layout'
+import { createSpec, deleteSpec, spec, specs } from './spec'
 
 const cacheStorage = new MultilayeredCache([
   new LRUCache<string, any>({
@@ -29,13 +27,16 @@ const prepare = <P, A, I, R>(handler: Resolver<P, A, I, R>) => (root: P, args: A
 
 export const resolvers = {
   Mutation: map(prepare, {
-    saveSpec,
-    saveSpecLayoutForAppName,
+    createSpec,
+    deleteSpec,
+    resetLayout,
+    saveLayout,
   }),
   Query: map(prepare, {
     appsWithStats,
     data,
     layout,
     spec,
+    specs,
   }),
 }

@@ -30,7 +30,7 @@ const fetchLayout = (apps: Apps, appId: string) => (): Promise<Maybe<Layout>> =>
 const retriveLayout = (apps: Apps, appId: string): Promise<Maybe<Layout>> => 
   layoutStorage.get(cacheKey(appId), fetchLayout(apps, appId))
 
-const appsWithSpecs = (apps: Apps) => apps.getDependencies(CONSOLE_GRAPHQL).then(keys)
+
 
 export const getAppLayout = async (apps: Apps, appName: string): Promise<Maybe<Layout>> => {
   const maybeAppsWithSpecs = await appsWithSpecs(apps)
