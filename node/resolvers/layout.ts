@@ -19,13 +19,13 @@ export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: an
     VBASE_BUCKET,
     appSpecLocatorsFile,
     true
-  )
+  ) as any
 
   const specLocators = maybeAppSpecLocator && maybeAppSpecLocator.specs
-    || await specs(null, null, ctx, info)
+    || await specs(null, null, ctx, info) 
 
   const layoutArray = await Promise.all(map(
-      (specLocator) => ({
+      (specLocator: any) => ({
         spec: spec(null, specLocator, ctx, info),
         specLocator,
       }),
@@ -67,8 +67,8 @@ interface ResetLayoutArgs {
   appName: string
 }
 
-export const resetLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, info: any) => {
-  const { appName, specLocators } = args
+export const resetLayout = async (root: any, args: ResetLayoutArgs, ctx: Context, info: any) => {
+  const { appName } = args
   const { resources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
