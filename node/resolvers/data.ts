@@ -18,6 +18,19 @@ interface Args {
 
 const NAMESPACE = 'gateway'
 
+const ddd = () => ({
+  "table": [
+    {"category": "A", "amount": Math.floor(Math.random() * 50)},
+    {"category": "B", "amount": Math.floor(Math.random() * 50)},
+    {"category": "C", "amount": Math.floor(Math.random() * 50)},
+    {"category": "D", "amount": Math.floor(Math.random() * 50)},
+    {"category": "E", "amount": Math.floor(Math.random() * 50)},
+    {"category": "F", "amount": Math.floor(Math.random() * 50)},
+    {"category": "G", "amount": Math.floor(Math.random() * 50)},
+    {"category": "H", "amount": Math.floor(Math.random() * 50)}
+  ]
+ })
+
 export const data = async (root, args: Args, ctx: Context, info) => {
   const {dataSources: {storeDash}, vtex: {account}} = ctx
   const {appId, name, params} = args
@@ -46,5 +59,6 @@ export const data = async (root, args: Args, ctx: Context, info) => {
       {'category': 'H', 'amount': 87}
     ]
   }
-  return JSON.stringify(MOCK_RESPONSE)
+  // return JSON.stringify(MOCK_RESPONSE)
+  return JSON.stringify(ddd())
 }
