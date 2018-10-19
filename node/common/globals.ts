@@ -8,4 +8,4 @@ export const CUSTOM_SPEC_APP_ID = 'custom'
 
 export const CONSOLE_GRAPHQL = 'vtex.console-graphql@0.x'
 
-export const VBASE_BUCKET = 'colossus'
+export const VBASE_BUCKET = 'console'

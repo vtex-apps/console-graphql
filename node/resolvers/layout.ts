@@ -34,15 +34,15 @@ export const spec = async ({specLocator}: any, args: LayoutArgs, ctx: Context, i
 
 interface AddSpecToLayoutArgs {
   appName: string
-  specLocators: SpecLocator
+  specLocator: SpecLocator
 }
 
 const toArray = <T>(x: T | T[]): T[] => Array.isArray(x) ? x : [x]
 
 export const addSpecToLayout = async (root, args: AddSpecToLayoutArgs, ctx: Context, info) => {
-  const {appName, specLocators} = args
+  const {appName, specLocator} = args
   const oldSpecs = await layout(root, {appName}, ctx, info).then(prop('layout')).then(pluck('specLocator')).then(toArray) as SpecLocator[]
-  const newSpecs = oldSpecs.concat(specLocators)
+  const newSpecs = oldSpecs.concat(specLocator)
   return saveLayout(root, {appName, specLocators: newSpecs}, ctx, info)
 }
 

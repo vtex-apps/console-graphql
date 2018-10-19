@@ -65,7 +65,7 @@ type Mutation {
 
   addSpecToLayout (
     appName: String!
-    specLocators: SpecLocatorInput!
+    specLocator: SpecLocatorInput!
   ): LayoutContainer
 
   saveLayout (

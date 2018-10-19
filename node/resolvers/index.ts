@@ -14,7 +14,6 @@ const cacheStorage = new MultilayeredCache([
   new DiskCache(CACHE_PATH)
 ])
 
-
 const prepare = <P, A, I, R>(handler: Resolver<P, A, I, R>) => (root: P, args: A, ctx: Context, info: I): Promise<R> => {
   const {vtex} = ctx
   ctx.resources = {
