@@ -12,7 +12,8 @@ const vendorFromAppId = compose(
 interface Args {
   appId: string, 
   name: string, 
-  params: StoreDashInput
+  // params: StoreDashInput
+  params: string
 }
 
 const NAMESPACE = 'gateway'
@@ -20,6 +21,7 @@ const NAMESPACE = 'gateway'
 export const data = async (root, args: Args, ctx: Context, info) => {
   const {dataSources: {storeDash}, vtex: {account}} = ctx
   const {appId, name, params} = args
+  const parsedParams = JSON.parse(params)
 
   if (!isValidAppIdOrLocator(appId)) {
     throw new ApolloError(`App ${appId} is not a valid appId`)

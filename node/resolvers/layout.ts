@@ -14,7 +14,7 @@ export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: an
   const { resources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
-
+  
   const maybeAppSpecLocator = await vbase.getJSON(
     VBASE_BUCKET,
     appSpecLocatorsFile,
@@ -61,15 +61,11 @@ export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, 
     await vbase.saveJSON(VBASE_BUCKET, appSpecLocatorsFile, {
       specs: specLocators,
     })
-    return {
-      cacheId: appName,
-      layout: map(objOf('specLocator'), specLocators)
-    } 
   }
   catch (e) {
     console.error(e)
   }
-  return null
+  return layout(root, {appName}, ctx, info)
 }
 
 interface ResetLayoutArgs {
