@@ -4,7 +4,7 @@ import { map } from 'ramda'
 import { CACHE_PATH } from '../common/globals'
 import { appsWithStats } from './appsWithStats'
 import { data } from './data'
-import { layout, resetLayout, saveLayout } from './layout'
+import { addSpecToLayout, layout, resetLayout, saveLayout, spec as specFieldResolver } from './layout'
 import { createSpec, deleteSpec, spec, specs } from './spec'
 
 const cacheStorage = new MultilayeredCache([
@@ -26,7 +26,11 @@ const prepare = <P, A, I, R>(handler: Resolver<P, A, I, R>) => (root: P, args: A
 }
 
 export const resolvers = {
+  Layout: {
+    spec: specFieldResolver
+  },
   Mutation: map(prepare, {
+    addSpecToLayout,
     createSpec,
     deleteSpec,
     resetLayout,

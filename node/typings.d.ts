@@ -37,6 +37,16 @@ declare global {
     appId: string
     specName: string
   }
+
+  interface Layout {
+    specLocator: SpecLocator
+    spec: String
+  }
+
+  interface LayoutContainer {
+    cacheId: string
+    layout: Layout[]
+  }
 }
 
 export {}

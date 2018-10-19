@@ -14,6 +14,11 @@ type Layout {
   spec: String
 }
 
+type LayoutContainer {
+  cacheId: ID
+  layout: [Layout]
+}
+
 type SpecLocator {
   appId: String
   specName: String
@@ -43,7 +48,7 @@ type Query {
 
   layout (
     appName: String!
-  ): [Layout]
+  ): LayoutContainer
 }
 
 type Mutation {
@@ -58,12 +63,17 @@ type Mutation {
     specName: String! 
   ): Boolean
 
+  addSpecToLayout (
+    appName: String!
+    specLocators: SpecLocatorInput!
+  ): LayoutContainer
+
   saveLayout (
     appName: String!
     specLocators: [SpecLocatorInput!]!
-  ): Boolean
+  ): LayoutContainer
 
   resetLayout (
     appName: String!
-  ): Boolean
+  ): LayoutContainer
 }

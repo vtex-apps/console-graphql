@@ -1,7 +1,7 @@
-import { map } from 'ramda'
+import { map, objOf, pluck, prop } from 'ramda'
 
 import { CUSTOM_SPEC_FILE, VBASE_BUCKET } from '../common/globals'
-import { spec, specs } from './spec'
+import { spec as specResolver, specs } from './spec'
 
 interface LayoutArgs {
   appName: string
@@ -9,7 +9,7 @@ interface LayoutArgs {
 
 const getSpecLocatorsFile = (appName: string) => `${appName}.${CUSTOM_SPEC_FILE}`
 
-export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: any) => {
+export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: any): Promise<LayoutContainer> => {
   const { appName } = args
   const { resources: { vbase }} = ctx
 
@@ -24,21 +24,31 @@ export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: an
   const specLocators = maybeAppSpecLocator && maybeAppSpecLocator.specs
     || await specs(null, null, ctx, info) 
 
-  const layoutArray = await Promise.all(map(
-      (specLocator: any) => ({
-        spec: spec(null, specLocator, ctx, info),
-        specLocator,
-      }),
-      specLocators
-    )
-  )
+  return {
+    cacheId: appName,
+    layout: map(objOf('specLocator'), specLocators) as Layout[]
+  }
+}
 
-  return layoutArray
+export const spec = async ({specLocator}: any, args: LayoutArgs, ctx: Context, info: any) => specResolver(null, specLocator, ctx, info)
+
+interface AddSpecToLayoutArgs {
+  appName: string
+  specLocators: SpecLocator
+}
+
+const toArray = <T>(x: T | T[]): T[] => Array.isArray(x) ? x : [x]
+
+export const addSpecToLayout = async (root, args: AddSpecToLayoutArgs, ctx: Context, info) => {
+  const {appName, specLocators} = args
+  const oldSpecs = await layout(root, {appName}, ctx, info).then(prop('layout')).then(pluck('specLocator')).then(toArray) as SpecLocator[]
+  const newSpecs = oldSpecs.concat(specLocators)
+  return saveLayout(root, {appName, specLocators: newSpecs}, ctx, info)
 }
 
 interface SaveLayoutArgs {
   appName: string
-  specLocators: [SpecLocator]
+  specLocators: SpecLocator[]
 }
 
 export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, info: any) => {
@@ -48,19 +58,18 @@ export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
 
   try {
-    const response = await vbase.saveJSON(
-      VBASE_BUCKET,
-      appSpecLocatorsFile,
-      {
-        specs: specLocators,
-      }
-    )
-  return true
+    await vbase.saveJSON(VBASE_BUCKET, appSpecLocatorsFile, {
+      specs: specLocators,
+    })
+    return {
+      cacheId: appName,
+      layout: map(objOf('specLocator'), specLocators)
+    } 
   }
   catch (e) {
     console.error(e)
-    return false
   }
+  return null
 }
 
 interface ResetLayoutArgs {
@@ -74,14 +83,10 @@ export const resetLayout = async (root: any, args: ResetLayoutArgs, ctx: Context
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
 
   try {
-    await vbase.deleteFile(
-      VBASE_BUCKET,
-      appSpecLocatorsFile
-    )
-    return true
+    await vbase.deleteFile(VBASE_BUCKET, appSpecLocatorsFile)
   }
   catch (e) {
     console.error(e)
-    return false
   }
+  return layout(root, {appName}, ctx, info)
 }
