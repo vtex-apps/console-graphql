@@ -23,15 +23,15 @@ export const data = async (root, args: Args, ctx: Context, info) => {
   const {appId, name, params} = args
   const parsedParams = JSON.parse(params)
 
-  if (!isValidAppIdOrLocator(appId)) {
-    throw new ApolloError(`App ${appId} is not a valid appId`)
-  }
+  // if (!isValidAppIdOrLocator(appId)) {
+  //   throw new ApolloError(`App ${appId} is not a valid appId`)
+  // }
 
-  const vendor = vendorFromAppId(appId)
+  // const vendor = vendorFromAppId(appId)
 
-  if (vendor !== account) {
-    throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
-  }
+  // if (vendor !== account) {
+  //   throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
+  // }
 
   // return storeDash.data(NAMESPACE, name, params).then(JSON.stringify)
   const MOCK_RESPONSE = {
