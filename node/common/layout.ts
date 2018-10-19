@@ -1,7 +1,7 @@
 import { Apps, DiskCache, LRUCache, MultilayeredCache, parseAppId } from '@vtex/api'
-import { find, findIndex, keys, partial, propEq } from 'ramda'
+import { find, findIndex, partial, propEq } from 'ramda'
 
-import { CACHE_PATH, CONSOLE_GRAPHQL, SPEC_PATH } from '../common/globals'
+import { CACHE_PATH, SPEC_PATH } from '../common/globals'
 import { ignoreNotFound } from './notFound'
 import { cacheKey, findBestMatching, toString } from './utils'
 
