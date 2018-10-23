@@ -1,13 +1,13 @@
-# input StoreDashInput {
-#   aggregateBy: [String]
-#   fields: [String]
-#   from: String!
-#   interval: String
-#   operation: String
-#   size: Int 
-#   timezone: String 
-#   to: String!
-# }
+input StoreDashInput {
+  aggregateBy: [String]
+  fields: [String]
+  from: String!
+  interval: String
+  operation: String
+  size: Int 
+  timezone: String 
+  to: String!
+}
 
 type Layout {
   specLocator: SpecLocator
@@ -35,8 +35,7 @@ type Query {
   data (
     appId: String!,
     name: String!,
-    # params: StoreDashInput
-    params: String
+    params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
 
   spec (

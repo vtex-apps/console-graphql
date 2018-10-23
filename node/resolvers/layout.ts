@@ -11,7 +11,7 @@ const getSpecLocatorsFile = (appName: string) => `${appName}.${CUSTOM_SPEC_FILE}
 
 export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: any): Promise<LayoutContainer> => {
   const { appName } = args
-  const { resources: { vbase }} = ctx
+  const { dataSources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
   
@@ -53,7 +53,7 @@ interface SaveLayoutArgs {
 
 export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, info: any) => {
   const { appName, specLocators } = args
-  const { resources: { vbase }} = ctx
+  const { dataSources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
 
@@ -73,8 +73,8 @@ interface ResetLayoutArgs {
 }
 
 export const resetLayout = async (root: any, args: ResetLayoutArgs, ctx: Context, info: any) => {
-  const { appName } = args
-  const { resources: { vbase }} = ctx
+  const {appName} = args
+  const {dataSources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
 

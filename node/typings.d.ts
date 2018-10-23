@@ -3,22 +3,20 @@ import { StoreDashDataSource } from './dataSources/storedash'
 
 declare global {
   interface Context extends ServiceContext {
-    resources: {
-      apps: Apps
-      vbase: VBase
-    }
     dataSources: DataSources
   }
-
+  
   interface DataSources {
     storeDash: StoreDashDataSource
+    apps: Apps
+    vbase: VBase
   }
   
   type Resolver<P, A, I, R> = (root: P, args: A, ctx: Context, info: I) => Promise<R>
 
   interface StoreDashInput {
-    aggregateBy?: [string]
-    fields?: [string]
+    aggregateBy?: string[]
+    fields?: string[]
     from: string
     interval?: string
     operation?: string

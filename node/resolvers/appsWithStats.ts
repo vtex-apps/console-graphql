@@ -4,7 +4,7 @@ import { compose, filter, isEmpty, isNil, keys, map, reject, startsWith } from '
 const nullable = x => isEmpty(x) || isNil(x)
 
 export const appsWithStats = async (root, args, ctx: Context, info) => {
-  const {resources: {apps}, vtex: {account}} = ctx
+  const {dataSources: {apps}, vtex: {account}} = ctx
   const deps = await apps.getDependencies().then(keys)
   return compose(
     reject(nullable),

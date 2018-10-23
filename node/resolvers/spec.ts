@@ -14,7 +14,7 @@ const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => ma
   : [] 
 
 export const specs = async (root, args: void, ctx: Context, info): Promise<SpecLocator[]> => {
-  const {resources: {vbase, apps}} = ctx
+  const {dataSources: {vbase, apps}} = ctx
   const appIdsWithStats = await appsWithSpecs(apps)
   const getSpecsForAppId = partial(getSpecs, [apps])
 
@@ -46,7 +46,7 @@ interface SpecArgs {
 }
 
 export const spec = async (root, args: SpecArgs, ctx: Context, info) => {
-  const {resources: {vbase, apps}} = ctx
+  const {dataSources: {vbase, apps}} = ctx
   const {specName, appId} = args
   let found: string
 
@@ -70,7 +70,7 @@ interface CreateSpecArgs {
 }
 
 export const createSpec = async (root, args: CreateSpecArgs, ctx: Context, info) => {
-  const {resources: {vbase}} = ctx
+  const {dataSources: {vbase}} = ctx
   const {specName, serializedSchema} = args
   const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE).catch(ignoreNotFound({}))
 
@@ -88,7 +88,7 @@ interface DeleteSpecArgs {
 }
 
 export const deleteSpec = async (root, args: DeleteSpecArgs, ctx: Context, info) => {
-  const {resources: {vbase}} = ctx
+  const {dataSources: {vbase}} = ctx
   const {specName} = args
   const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE).catch(ignoreNotFound({}))
 
