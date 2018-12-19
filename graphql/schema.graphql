@@ -4,9 +4,15 @@ input StoreDashInput {
   from: String!
   interval: String
   operation: String
-  size: Int 
-  timezone: String 
+  size: Int
+  timezone: String
   to: String!
+}
+
+input WorkspaceResponse {
+  name: string
+  weight: number
+  production: boolean
 }
 
 type Layout {
@@ -30,7 +36,9 @@ input SpecLocatorInput {
 }
 
 type Query {
-  appsWithStats: [String] 
+  appsWithStats: [String]
+
+  workspaces: [WorkspaceResponse]
 
   data (
     appId: String!,
@@ -60,7 +68,7 @@ type Mutation {
 
   """ Deleta Custom Spec """
   deleteSpec (
-    specName: String! 
+    specName: String!
   ): Boolean
 
   addSpecToLayout (

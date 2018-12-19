@@ -5,13 +5,13 @@ declare global {
   interface Context extends ServiceContext {
     dataSources: DataSources
   }
-  
+
   interface DataSources {
     storeDash: StoreDashDataSource
     apps: Apps
     vbase: VBase
   }
-  
+
   type Resolver<P, A, I, R> = (root: P, args: A, ctx: Context, info: I) => Promise<R>
 
   interface StoreDashInput {
@@ -25,7 +25,13 @@ declare global {
     to?: string
   }
 
-  type Maybe<T> = T | void 
+  type Maybe<T> = T | void
+
+  interface WorkspaceResponse {
+    name: string,
+    weight: number,
+    production: boolean,
+  }
 
   interface Specs {
     [name: string]: string
