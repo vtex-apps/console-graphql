@@ -9,6 +9,12 @@ input StoreDashInput {
   to: String!
 }
 
+input WorkspaceResponse {
+  name: string
+  weight: number
+  production: boolean
+}
+
 type Layout {
   specLocator: SpecLocator
   spec: String
