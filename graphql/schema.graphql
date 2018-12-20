@@ -10,9 +10,9 @@ input StoreDashInput {
 }
 
 input WorkspaceResponse {
-  name: string
-  weight: number
-  production: boolean
+  name: String
+  weight: Int
+  production: Boolean
 }
 
 type Layout {
