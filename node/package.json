@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@vtex/api": "1.3.0-beta.6",
+    "@vtex/api": "^1.5.2",
     "apollo-datasource-rest": "^0.1.5",
     "apollo-server": "^2.1.0",
     "apollo-server-errors": "^2.0.2",
