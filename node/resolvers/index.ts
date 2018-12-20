@@ -1,3 +1,4 @@
+import { workspaces } from './workspaces'
 import { appsWithStats } from './appsWithStats'
 import { data } from './data'
 import { addSpecToLayout, layout, resetLayout, saveLayout, spec as specFieldResolver } from './layout'
@@ -20,5 +21,6 @@ export const resolvers = {
     layout,
     spec,
     specs,
+    workspaces,
   },
 }
