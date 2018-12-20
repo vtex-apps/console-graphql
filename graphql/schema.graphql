@@ -9,7 +9,7 @@ input StoreDashInput {
   to: String!
 }
 
-input WorkspaceResponse {
+type WorkspaceResponse {
   name: String
   weight: Int
   production: Boolean
