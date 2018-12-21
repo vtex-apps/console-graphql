@@ -9,12 +9,6 @@ input StoreDashInput {
   to: String!
 }
 
-type WorkspaceResponse {
-  name: String
-  weight: Int
-  production: Boolean
-}
-
 type Layout {
   specLocator: SpecLocator
   spec: String
@@ -38,7 +32,7 @@ input SpecLocatorInput {
 type Query {
   appsWithStats: [String]
 
-  workspaces: [WorkspaceResponse]
+  workspaces: [String]
 
   data (
     appId: String!,
