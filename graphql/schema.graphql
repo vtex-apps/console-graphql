@@ -1,3 +1,8 @@
+type Income {
+  date: String
+  count: Int
+}
+
 input StoreDashInput {
   aggregateBy: [String]
   fields: [String]
@@ -32,13 +37,21 @@ input SpecLocatorInput {
 type Query {
   appsWithStats: [String]
 
-  workspaces: [String]
-
   data (
     appId: String!,
     name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
+
+  income (
+    from: String,
+    to: String,
+    interval: String
+  ): [Income] @cacheControl(scope: PRIVATE)
+
+  layout (
+    appName: String!
+  ): LayoutContainer
 
   spec (
     specName: String!,
@@ -48,9 +61,7 @@ type Query {
   """ custom.json """
   specs: [SpecLocator]
 
-  layout (
-    appName: String!
-  ): LayoutContainer
+  workspaces: [String]
 }
 
 type Mutation {

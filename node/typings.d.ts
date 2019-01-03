@@ -1,4 +1,4 @@
-import { Apps, ServiceContext, VBase } from '@vtex/api'
+import { Apps, Registry, ServiceContext, VBase } from '@vtex/api'
 import { StoreDashDataSource } from './dataSources/storedash'
 
 declare global {
@@ -10,6 +10,7 @@ declare global {
     storeDash: StoreDashDataSource
     apps: Apps
     vbase: VBase
+    registry: Registry
   }
 
   type Resolver<P, A, I, R> = (root: P, args: A, ctx: Context, info: I) => Promise<R>

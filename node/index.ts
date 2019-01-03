@@ -9,5 +9,5 @@ export default {
   graphql: {
     dataSources,
     resolvers,
-  }
+  },
 }
