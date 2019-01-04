@@ -27,9 +27,9 @@ export const data = async (root, args: Args, ctx: Context, info) => {
 
   const vendor = vendorFromAppId(appId)
 
-  // if (vendor !== account) {
-  //   throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
-  // }
+  if (vendor !== account) {
+    throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
+  }
 
   return storeDash.data(NAMESPACE, name, params)
     .then(data => {

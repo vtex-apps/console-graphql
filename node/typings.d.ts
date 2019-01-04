@@ -28,12 +28,6 @@ declare global {
 
   type Maybe<T> = T | void
 
-  interface WorkspaceResponse {
-    name: string,
-    weight: number,
-    production: boolean,
-  }
-
   interface Specs {
     [name: string]: string
   }

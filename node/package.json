@@ -4,13 +4,11 @@
     "apollo-datasource-rest": "^0.1.5",
     "apollo-server": "^2.1.0",
     "apollo-server-errors": "^2.0.2",
-    "axios": "^0.18.0",
     "bluebird": "^3.5.3",
     "graphql": "^14.0.2",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/bluebird": "^3.5.24",
     "@types/bluebird-global": "^3.5.9",
     "@types/node": "^10.7.1",

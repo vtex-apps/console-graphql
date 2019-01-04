@@ -24,6 +24,9 @@
       "name": "vbase-read-write"
     },
     {
+      "name": "read-private-registry-assets"
+    },
+    {
       "name": "outbound-access",
       "attrs": {
         "host": "api.vtex.com",
