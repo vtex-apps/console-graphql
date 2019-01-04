@@ -32,13 +32,6 @@
         "host": "api.vtex.com",
         "path": "/api/storedash/{{account}}/metrics/*"
       }
-    },
-    {
-      "name": "outbound-access",
-      "attrs": {
-        "host": "{{account}}.myvtex.com",
-        "path": "/*"
-      }
     }
   ]
 }

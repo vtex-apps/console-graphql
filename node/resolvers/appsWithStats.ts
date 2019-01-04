@@ -1,7 +1,4 @@
-import { removeVersionFromAppId } from '@vtex/api'
-import { compose, filter, has, includes, isEmpty, isNil, keys, map, pluck, prop, reject, sort, startsWith  } from 'ramda'
-
-const nullable = x => isEmpty(x) || isNil(x)
+import { filter, includes, map, pluck, prop } from 'ramda'
 
 
 export const appsWithStats = async (root, args, ctx: Context, info) => {
