@@ -4,8 +4,8 @@ input StoreDashInput {
   from: String!
   interval: String
   operation: String
-  size: Int 
-  timezone: String 
+  size: Int
+  timezone: String
   to: String!
 }
 
@@ -30,13 +30,17 @@ input SpecLocatorInput {
 }
 
 type Query {
-  appsWithStats: [String] 
+  appsWithStats: [String]
 
   data (
     appId: String!,
     name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
+
+  layout (
+    appName: String!
+  ): LayoutContainer
 
   spec (
     specName: String!,
@@ -45,10 +49,6 @@ type Query {
 
   """ custom.json """
   specs: [SpecLocator]
-
-  layout (
-    appName: String!
-  ): LayoutContainer
 }
 
 type Mutation {
@@ -60,7 +60,7 @@ type Mutation {
 
   """ Deleta Custom Spec """
   deleteSpec (
-    specName: String! 
+    specName: String!
   ): Boolean
 
   addSpecToLayout (

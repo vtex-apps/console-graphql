@@ -1,14 +1,27 @@
-import { removeVersionFromAppId } from '@vtex/api'
-import { compose, filter, isEmpty, isNil, keys, map, reject, startsWith } from 'ramda'
+import { filter, includes, map, pluck, prop } from 'ramda'
 
-const nullable = x => isEmpty(x) || isNil(x)
+
+const filterAppNameByAccount = (appNameList: string[], accountName: string) => {
+  const isVendorInApp = (appName: string) => {
+    const appNamePart: string[] = appName.split('.')
+    return accountName === appNamePart[0]
+  }
+  return filter(isVendorInApp, appNameList)
+}
+
+const removeAccountInAppName = (appNameList: string[], accountName: string) => {
+  const accountNameLength = accountName.length
+  return map(str => str.substring(accountNameLength + 1), appNameList)
+}
 
 export const appsWithStats = async (root, args, ctx: Context, info) => {
-  const {dataSources: {apps}, vtex: {account}} = ctx
-  const deps = await apps.getDependencies().then(keys)
-  return compose(
-    reject(nullable),
-    map(removeVersionFromAppId),
-    filter(startsWith(account))
-  )(deps)
+  const {dataSources: {registry}, vtex: {account}} = ctx
+  const publishedAppsInThisAccount = await registry.listApps()
+    .then(prop('data'))
+    .then(pluck('partialIdentifier'))
+    .then(result => filterAppNameByAccount(result, account))
+    .then(result => removeAccountInAppName(result, account))
+    .then(result => result.sort())
+
+  return publishedAppsInThisAccount
 }

@@ -1,5 +1,7 @@
 import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
+import { parse as parseCookie } from 'cookie'
 import { isEmpty, isNil, join, reject } from 'ramda'
+
 
 const isNilOrEmpty = x => isEmpty(x) || isNil(x)
 
@@ -25,9 +27,11 @@ export class StoreDashDataSource extends RESTDataSource {
 
   protected willSendRequest(request: RequestOptions) {
     const {header, vtex: {authToken}} = this.context
+    const parsedCookies = parseCookie(header.cookie || '')
+    const VtexIdclientAutCookie = parsedCookies.VtexIdclientAutCookie
+
     request.headers.set('X-Vtex-Use-Https', 'true')
-    request.headers.set('X-Vtex-Use-Https', 'true')
+    request.headers.set('VtexIdclientAutCookie', VtexIdclientAutCookie)
     request.headers.set('Proxy-Authorization', authToken)
-    request.headers.set('Cookie', header.cookie)
   }
 }

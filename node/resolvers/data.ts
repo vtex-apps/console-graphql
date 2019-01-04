@@ -10,12 +10,12 @@ const vendorFromAppId = compose(
 )
 
 interface Args {
-  appId: string, 
-  name: string, 
+  appId: string,
+  name: string,
   params: StoreDashInput
 }
 
-const NAMESPACE = 'colossus'
+const NAMESPACE = 'storedash'
 
 export const data = async (root, args: Args, ctx: Context, info) => {
   const {dataSources: {storeDash}, vtex: {account}} = ctx

@@ -1,17 +1,18 @@
-import { Apps, ServiceContext, VBase } from '@vtex/api'
+import { Apps, Registry, ServiceContext, VBase } from '@vtex/api'
 import { StoreDashDataSource } from './dataSources/storedash'
 
 declare global {
   interface Context extends ServiceContext {
     dataSources: DataSources
   }
-  
+
   interface DataSources {
     storeDash: StoreDashDataSource
     apps: Apps
     vbase: VBase
+    registry: Registry
   }
-  
+
   type Resolver<P, A, I, R> = (root: P, args: A, ctx: Context, info: I) => Promise<R>
 
   interface StoreDashInput {
@@ -25,7 +26,7 @@ declare global {
     to?: string
   }
 
-  type Maybe<T> = T | void 
+  type Maybe<T> = T | void
 
   interface Specs {
     [name: string]: string
