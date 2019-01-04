@@ -18,9 +18,6 @@
       "name": "read-workspace-apps"
     },
     {
-      "name": "read-write-workspace"
-    },
-    {
       "name": "vbase-read-write"
     },
     {
