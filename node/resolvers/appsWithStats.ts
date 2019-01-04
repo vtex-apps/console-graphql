@@ -4,7 +4,7 @@ import { filter, includes, map, pluck, prop } from 'ramda'
 const filterAppNameByAccount = (appNameList: string[], accountName: string) => {
   const isVendorInApp = (appName: string) => {
     const appNamePart: string[] = appName.split('.')
-    return includes(accountName, appNamePart[0])
+    return accountName === appNamePart[0]
   }
   return filter(isVendorInApp, appNameList)
 }
