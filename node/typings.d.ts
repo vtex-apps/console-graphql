@@ -37,14 +37,14 @@ declare global {
     specName: string
   }
 
-  interface Layout {
+  interface LayoutWithSpecs {
     specLocator: SpecLocator
     spec: String
   }
 
-  interface LayoutContainer {
+  interface LayoutWithSpecsContainer {
     cacheId: string
-    layout: Layout[]
+    layoutWithSpecs: LayoutWithSpecs[]
   }
 }
 

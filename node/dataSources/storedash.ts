@@ -17,9 +17,11 @@ export class StoreDashDataSource extends RESTDataSource {
       aggregateBy: join(',', aggregateBy),
       fields: join(',', fields),
     })
-    return this.get(`/${namespace}/${name}`, transformed)
+
+    return this.get(`/${namespace}/${name}?`, transformed)
   }
 
+  // Rever: acho que não é account, mas appName na baseURL
   get baseURL() {
     const {vtex: {account}} = this.context
     return `http://api.vtex.com/api/storedash/${account}/metrics`
@@ -35,3 +37,5 @@ export class StoreDashDataSource extends RESTDataSource {
     request.headers.set('Proxy-Authorization', authToken)
   }
 }
+
+
