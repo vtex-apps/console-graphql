@@ -1,12 +1,18 @@
 input StoreDashInput {
-  aggregateBy: [String]
-  fields: [String]
+  appName: String!
+  appVersion: String
+  region: String
+  production: Boolean
+  vendor: String
+  metricName: String!
   from: String!
+  to: String!
   interval: String
   operation: String
+  fields: [String]
+  aggregateBy: [String]
   size: Int
   timezone: String
-  to: String!
 }
 
 type LayoutWithSpecs {
