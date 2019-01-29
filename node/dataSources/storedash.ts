@@ -1,17 +1,30 @@
 import { forEachObjIndexed } from 'ramda'
 import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
 import { parse as parseCookie } from 'cookie'
-import { isEmpty, isNil, join, reject } from 'ramda'
-import { data } from '../resolvers/data'
+import { adjust, curry, fromPairs, isEmpty, isNil, join, map, pipe, reject, replace, startsWith, toPairs } from 'ramda'
+
 
 const isNilOrEmpty = x => isEmpty(x) || isNil(x)
+
+const renameBy = (fn, obj) => (
+    pipe(
+      toPairs,
+      map(adjust(0, fn)),
+      fromPairs
+    )(obj)
+  )
+
+const renameProperties = (pattern: string, data: any) => {
+  const regex = new RegExp('^' + pattern)
+  return map(obj => renameBy(replace(regex, ''), obj), data)
+}
 
 export class StoreDashDataSource extends RESTDataSource {
   constructor() {
     super()
   }
 
-  public data = (namespace: string, name: string, params: StoreDashInput) => {
+  public data = async (namespace: string, name: string, params: StoreDashInput) => {
     const {
       appName = '',
       appVersion = '',
@@ -36,18 +49,18 @@ export class StoreDashDataSource extends RESTDataSource {
       ...otherParams,
     })
 
-    console.log({ transformed })
-
-    return this.get(`/${namespace}/${name}?`, transformed)
+    const responseData = await this.get(`/${namespace}/${name}?`, transformed)
+    const responseDataRenamed = renameProperties('data.summary.', responseData)
+    return responseDataRenamed
   }
 
   get baseURL() {
-    const {vtex: {account}} = this.context
+    const { vtex: { account } } = this.context
     return `http://api.vtex.com/api/storedash/metrics`
   }
 
   protected willSendRequest(request: RequestOptions) {
-    const {header, vtex: {authToken}} = this.context
+    const { header, vtex: { authToken } } = this.context
     const parsedCookies = parseCookie(header.cookie || '')
     const VtexIdclientAutCookie = parsedCookies.VtexIdclientAutCookie
 
