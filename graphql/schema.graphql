@@ -3,7 +3,6 @@ input StoreDashInput {
   appVersion: String
   region: String
   production: Boolean
-  vendor: String
   metricName: String!
   from: String!
   to: String!
@@ -39,7 +38,6 @@ type Query {
   appsWithStats: [String]
 
   data (
-    appId: String!,
     name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)

@@ -1,7 +1,6 @@
-import { forEachObjIndexed } from 'ramda'
 import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
 import { parse as parseCookie } from 'cookie'
-import { adjust, curry, fromPairs, isEmpty, isNil, join, map, pipe, reject, replace, startsWith, toPairs } from 'ramda'
+import { adjust, curry, forEach, forEachObjIndexed, fromPairs, has, isEmpty, isNil, join, map, pipe, reject, replace, startsWith, toPairs } from 'ramda'
 
 
 const isNilOrEmpty = x => isEmpty(x) || isNil(x)
@@ -30,7 +29,6 @@ export class StoreDashDataSource extends RESTDataSource {
       appVersion = '',
       region = '',
       production = '',
-      vendor = '',
       metricName = '',
       aggregateBy = [],
       fields = [],
@@ -42,16 +40,16 @@ export class StoreDashDataSource extends RESTDataSource {
       'data.processEnv.appVersion': appVersion,
       'data.processEnv.region': region,
       'data.processEnv.production': production,
-      'data.processEnv.vendor': vendor,
       'data.key.name': metricName,
       aggregateBy: join(',', aggregateBy),
       fields: join(',', fields),
       ...otherParams,
     })
 
-    const responseData = await this.get(`/${namespace}/${name}?`, transformed)
-    const responseDataRenamed = renameProperties('data.summary.', responseData)
-    return responseDataRenamed
+    let responseData = await this.get(`/${namespace}/${name}?`, transformed)
+    responseData = renameProperties('data.summary.', responseData)
+    responseData = renameProperties('data.key.', responseData)
+    return responseData
   }
 
   get baseURL() {

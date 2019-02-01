@@ -10,7 +10,6 @@ const vendorFromAppId = compose(
 )
 
 interface Args {
-  appId: string,
   name: string,
   params: StoreDashInput
 }
@@ -19,7 +18,7 @@ const NAMESPACE = 'colossus'
 
 export const data = async (root, args: Args, ctx: Context, info) => {
   const {dataSources: {storeDash}, vtex: {account}} = ctx
-  const {appId, name, params} = args
+  const {name, params} = args
 
   // Comentado por enquanto para testar o front
   // if (!isValidAppIdOrLocator(appId)) {
