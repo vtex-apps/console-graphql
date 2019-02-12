@@ -19,7 +19,6 @@ export class StoreDashDataSource extends RESTDataSource {
 
   get baseURL() {
     const { vtex: { account } } = this.context
-    console.log({account})
     return `http://api.vtex.com/api/storedash/${account}/metrics`
   }
 
