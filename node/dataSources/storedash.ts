@@ -1,22 +1,7 @@
 import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
 import { parse as parseCookie } from 'cookie'
-import { adjust, curry, forEach, forEachObjIndexed, fromPairs, has, isEmpty, isNil, join, map, pipe, reject, replace, startsWith, toPairs } from 'ramda'
+import { addMeanProperty, getTransformedParams, renameProperties } from './utils'
 
-
-const isNilOrEmpty = x => isEmpty(x) || isNil(x)
-
-const renameBy = (fn, obj) => (
-    pipe(
-      toPairs,
-      map(adjust(0, fn)),
-      fromPairs
-    )(obj)
-  )
-
-const renameProperties = (pattern: string, data: any) => {
-  const regex = new RegExp('^' + pattern)
-  return map(obj => renameBy(replace(regex, ''), obj), data)
-}
 
 export class StoreDashDataSource extends RESTDataSource {
   constructor() {
@@ -24,37 +9,18 @@ export class StoreDashDataSource extends RESTDataSource {
   }
 
   public data = async (namespace: string, name: string, params: StoreDashInput) => {
-    const {
-      appName = '',
-      appVersion = '',
-      region = '',
-      production = '',
-      metricName = '',
-      aggregateBy = [],
-      fields = [],
-      ...otherParams
-    } = params || {}
-
-    const transformed: any = reject(isNilOrEmpty, {
-      'data.processEnv.appName': appName,
-      'data.processEnv.appVersion': appVersion,
-      'data.processEnv.region': region,
-      'data.processEnv.production': production,
-      'data.key.name': metricName,
-      aggregateBy: join(',', aggregateBy),
-      fields: join(',', fields),
-      ...otherParams,
-    })
-
+    const transformed: any = getTransformedParams(params)
     let responseData = await this.get(`/${namespace}/${name}?`, transformed)
     responseData = renameProperties('data.summary.', responseData)
     responseData = renameProperties('data.key.', responseData)
+    addMeanProperty(responseData, params.metricName)
     return responseData
   }
 
   get baseURL() {
     const { vtex: { account } } = this.context
-    return `http://api.vtex.com/api/storedash/metrics`
+    console.log({account})
+    return `http://api.vtex.com/api/storedash/${account}/metrics`
   }
 
   protected willSendRequest(request: RequestOptions) {

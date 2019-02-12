@@ -10,6 +10,7 @@ const vendorFromAppId = compose(
 )
 
 interface Args {
+  appId: string,
   name: string,
   params: StoreDashInput
 }
@@ -18,23 +19,21 @@ const NAMESPACE = 'colossus'
 
 export const data = async (root, args: Args, ctx: Context, info) => {
   const {dataSources: {storeDash}, vtex: {account}} = ctx
-  const {name, params} = args
+  const {appId, name, params} = args
 
-  // Comentado por enquanto para testar o front
   // if (!isValidAppIdOrLocator(appId)) {
   //   throw new ApolloError(`App ${appId} is not a valid appId`)
   // }
 
-  // const vendor = vendorFromAppId(appId)
+  const vendor = vendorFromAppId(appId)
 
-  // if (vendor !== account) {
-  //   throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
-  // }
+  if (vendor !== account) {
+    throw new ApolloError(`Vendor ${account} cannot read metrics of vendor ${vendor}`)
+  }
 
   return storeDash.data(NAMESPACE, name, params)
-    .then(data => {
-      console.log(data)
-      return data
+    .then(responseData => {
+      return responseData
     })
     .then(JSON.stringify)
 }
