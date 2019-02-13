@@ -38,7 +38,6 @@ type Query {
   appsWithStats: [String]
 
   data (
-    appId: String!,
     name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
