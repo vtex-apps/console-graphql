@@ -30,7 +30,7 @@ const isNilOrEmpty = x => isEmpty(x) || isNil(x)
 const renameBy = (fn, obj) => (
   pipe(
     toPairs,
-    map(adjust(0, fn)),
+    map(adjust(0 as any, fn)),
     fromPairs
   )(obj)
 )
@@ -63,7 +63,7 @@ const calculateMeanForArray = (chartData: any[], metrics: string[], metricName: 
 // routeStats
 const calculateMeanForArrayOfCustom = (chartData: any[]) => {
   return map((chartPoint: any) => {
-    let meanLatency = chartPoint.sum
+    let meanLatency = chartPoint['summary.sum']
     if (chartPoint.count) {
       meanLatency /= chartPoint.count
     }
@@ -76,10 +76,10 @@ const calculateMeanForArrayOfCustom = (chartData: any[]) => {
 
 export const addMeanProperty = (data: object[], metricName: string) => {
   if (metricName === 'memoryUsage') {
-    const memoryMetrics = ['external', 'heapUsed', 'heapTotal', 'rss']
+    const memoryMetrics = ['summary.external', 'summary.heapUsed', 'summary.heapTotal', 'summary.rss']
     calculateMeanForArray(data, memoryMetrics, metricName)
   } else if (metricName === 'cpuUsage') {
-    const cpuMetrics = ['system', 'user']
+    const cpuMetrics = ['summary.system', 'summary.user']
     calculateMeanForArray(data, cpuMetrics, metricName)
   }
   // else {
