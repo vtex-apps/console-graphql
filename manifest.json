@@ -1,7 +1,7 @@
 {
   "name": "console-graphql",
   "vendor": "vtex",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "IO Console API",
   "description": "VTEX developer console API",
   "mustUpdateAt": "2019-10-16",
