@@ -6,12 +6,12 @@ import { CUSTOM_SPEC_APP_ID, CUSTOM_SPEC_FILE, VBASE_BUCKET } from '../common/gl
 import { ignoreNotFound } from '../common/notFound'
 import { appsWithSpecs, getSpec, getSpecs } from '../common/spec'
 
-const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => maybeSpecs 
+const maybeSpecsToSpecLocators = (maybeSpecs: Maybe<Specs>, appId: string) => maybeSpecs
   ? compose(
     map((specName: string) => ({specName, appId})),
     keys
   )(maybeSpecs) as SpecLocator[]
-  : [] 
+  : []
 
 export const specs = async (root, args: void, ctx: Context, info): Promise<SpecLocator[]> => {
   const {dataSources: {vbase, apps}} = ctx
@@ -20,7 +20,7 @@ export const specs = async (root, args: void, ctx: Context, info): Promise<SpecL
 
   const [appSpecs, maybeCustomSpecs] = await Promise.all([
     Promise.map(appIdsWithStats, getSpecsForAppId),
-    vbase.getJSON<Maybe<Specs>>(VBASE_BUCKET, CUSTOM_SPEC_FILE, true)
+    vbase.getJSON<Maybe<Specs>>(VBASE_BUCKET, CUSTOM_SPEC_FILE, true),
   ])
 
   const specsByAppId = zipObj(appIdsWithStats, appSpecs)
@@ -31,12 +31,12 @@ export const specs = async (root, args: void, ctx: Context, info): Promise<SpecL
   )(specsByAppId) as SpecLocator[]
 
   const customSpecsLocators = maybeSpecsToSpecLocators(maybeCustomSpecs, CUSTOM_SPEC_APP_ID)
-  
+
   console.log('implement UNIQ !!!')
 
   return [
     ...appSpecsLocators,
-    ...customSpecsLocators
+    ...customSpecsLocators,
   ]
 }
 
@@ -56,7 +56,7 @@ export const spec = async (root, args: SpecArgs, ctx: Context, info) => {
     const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE, true)
     found = prop(specName, customSpecs)
   }
-  
+
   if (!found) {
     throw new ApolloError(`Vega spec ${specName} was not found for app ${appId}`)
   }
@@ -74,7 +74,7 @@ export const createSpec = async (root, args: CreateSpecArgs, ctx: Context, info)
   const {specName, serializedSchema} = args
   const customSpecs = await vbase.getJSON<Specs>(VBASE_BUCKET, CUSTOM_SPEC_FILE).catch(ignoreNotFound({}))
 
-  if (customSpecs && customSpecs[specName]) { 
+  if (customSpecs && customSpecs[specName]) {
     throw new ApolloError(`Custom Vega spec with name ${specName} already exists`, 'ERR_SPEC_ALREADY_EXISTS')
   }
 

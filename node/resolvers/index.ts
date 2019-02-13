@@ -5,7 +5,7 @@ import { createSpec, deleteSpec, spec, specs } from './spec'
 
 export const resolvers = {
   LayoutWithSpecs: {
-    spec: specFieldResolver
+    spec: specFieldResolver,
   },
   Mutation: {
     addSpecToLayoutWithSpecs,

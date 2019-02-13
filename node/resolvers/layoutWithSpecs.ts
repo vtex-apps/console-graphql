@@ -26,7 +26,7 @@ export const layoutWithSpecs = async (root: any, args: LayoutWithSpecsArgs, ctx:
 
   return {
     cacheId: appName,
-    layoutWithSpecs: map(objOf('specLocator'), specLocators) as LayoutWithSpecs[]
+    layoutWithSpecs: map(objOf('specLocator'), specLocators) as LayoutWithSpecs[],
   }
 }
 
