@@ -3,18 +3,18 @@ import { map, objOf, pluck, prop } from 'ramda'
 import { CUSTOM_SPEC_FILE, VBASE_BUCKET } from '../common/globals'
 import { spec as specResolver, specs } from './spec'
 
-interface LayoutArgs {
+interface LayoutWithSpecsArgs {
   appName: string
 }
 
 const getSpecLocatorsFile = (appName: string) => `${appName}.${CUSTOM_SPEC_FILE}`
 
-export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: any): Promise<LayoutContainer> => {
+export const layoutWithSpecs = async (root: any, args: LayoutWithSpecsArgs, ctx: Context, info: any): Promise<LayoutWithSpecsContainer> => {
   const { appName } = args
   const { dataSources: { vbase }} = ctx
 
   const appSpecLocatorsFile = getSpecLocatorsFile(appName)
-  
+
   const maybeAppSpecLocator = await vbase.getJSON(
     VBASE_BUCKET,
     appSpecLocatorsFile,
@@ -22,36 +22,36 @@ export const layout = async (root: any, args: LayoutArgs, ctx: Context, info: an
   ) as any
 
   const specLocators = maybeAppSpecLocator && maybeAppSpecLocator.specs
-    || await specs(null, null, ctx, info) 
+    || await specs(null, null, ctx, info)
 
   return {
     cacheId: appName,
-    layout: map(objOf('specLocator'), specLocators) as Layout[]
+    layoutWithSpecs: map(objOf('specLocator'), specLocators) as LayoutWithSpecs[],
   }
 }
 
-export const spec = async ({specLocator}: any, args: LayoutArgs, ctx: Context, info: any) => specResolver(null, specLocator, ctx, info)
+export const spec = async ({specLocator}: any, args: LayoutWithSpecsArgs, ctx: Context, info: any) => specResolver(null, specLocator, ctx, info)
 
-interface AddSpecToLayoutArgs {
+interface AddSpecToLayoutWithSpecsArgs {
   appName: string
   specLocator: SpecLocator
 }
 
 const toArray = <T>(x: T | T[]): T[] => Array.isArray(x) ? x : [x]
 
-export const addSpecToLayout = async (root, args: AddSpecToLayoutArgs, ctx: Context, info) => {
+export const addSpecToLayoutWithSpecs = async (root, args: AddSpecToLayoutWithSpecsArgs, ctx: Context, info) => {
   const {appName, specLocator} = args
-  const oldSpecs = await layout(root, {appName}, ctx, info).then(prop('layout')).then(pluck('specLocator')).then(toArray) as SpecLocator[]
+  const oldSpecs = await layoutWithSpecs(root, {appName}, ctx, info).then(prop('layoutWithSpecs')).then(pluck('specLocator')).then(toArray) as SpecLocator[]
   const newSpecs = oldSpecs.concat(specLocator)
-  return saveLayout(root, {appName, specLocators: newSpecs}, ctx, info)
+  return saveLayoutWithSpecs(root, {appName, specLocators: newSpecs}, ctx, info)
 }
 
-interface SaveLayoutArgs {
+interface SaveLayoutWithSpecsArgs {
   appName: string
   specLocators: SpecLocator[]
 }
 
-export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, info: any) => {
+export const saveLayoutWithSpecs = async (root: any, args: SaveLayoutWithSpecsArgs, ctx: Context, info: any) => {
   const { appName, specLocators } = args
   const { dataSources: { vbase }} = ctx
 
@@ -65,14 +65,14 @@ export const saveLayout = async (root: any, args: SaveLayoutArgs, ctx: Context, 
   catch (e) {
     console.error(e)
   }
-  return layout(root, {appName}, ctx, info)
+  return layoutWithSpecs(root, {appName}, ctx, info)
 }
 
-interface ResetLayoutArgs {
+interface ResetLayoutWithSpecsArgs {
   appName: string
 }
 
-export const resetLayout = async (root: any, args: ResetLayoutArgs, ctx: Context, info: any) => {
+export const resetLayoutWithSpecs = async (root: any, args: ResetLayoutWithSpecsArgs, ctx: Context, info: any) => {
   const {appName} = args
   const {dataSources: { vbase }} = ctx
 
@@ -84,5 +84,5 @@ export const resetLayout = async (root: any, args: ResetLayoutArgs, ctx: Context
   catch (e) {
     console.error(e)
   }
-  return layout(root, {appName}, ctx, info)
+  return layoutWithSpecs(root, {appName}, ctx, info)
 }

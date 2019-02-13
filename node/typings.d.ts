@@ -16,14 +16,19 @@ declare global {
   type Resolver<P, A, I, R> = (root: P, args: A, ctx: Context, info: I) => Promise<R>
 
   interface StoreDashInput {
-    aggregateBy?: string[]
-    fields?: string[]
+    appName: string
+    appVersion?: string
+    region?: 'aws-us-east-1' | 'aws-us-east-2'
+    production?: boolean
+    metricName: string
     from: string
+    to: string
     interval?: string
     operation?: string
+    fields?: string[]
+    aggregateBy?: string[]
     size?: number
     timezone?: string
-    to?: string
   }
 
   type Maybe<T> = T | void
@@ -37,14 +42,14 @@ declare global {
     specName: string
   }
 
-  interface Layout {
+  interface LayoutWithSpecs {
     specLocator: SpecLocator
     spec: String
   }
 
-  interface LayoutContainer {
+  interface LayoutWithSpecsContainer {
     cacheId: string
-    layout: Layout[]
+    layoutWithSpecs: LayoutWithSpecs[]
   }
 }
 

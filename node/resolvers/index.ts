@@ -1,23 +1,23 @@
 import { appsWithStats } from './appsWithStats'
 import { data } from './data'
-import { addSpecToLayout, layout, resetLayout, saveLayout, spec as specFieldResolver } from './layout'
+import { addSpecToLayoutWithSpecs, layoutWithSpecs, resetLayoutWithSpecs, saveLayoutWithSpecs, spec as specFieldResolver } from './layoutWithSpecs'
 import { createSpec, deleteSpec, spec, specs } from './spec'
 
 export const resolvers = {
-  Layout: {
-    spec: specFieldResolver
+  LayoutWithSpecs: {
+    spec: specFieldResolver,
   },
   Mutation: {
-    addSpecToLayout,
+    addSpecToLayoutWithSpecs,
     createSpec,
     deleteSpec,
-    resetLayout,
-    saveLayout,
+    resetLayoutWithSpecs,
+    saveLayoutWithSpecs,
   },
   Query: {
     appsWithStats,
     data,
-    layout,
+    layoutWithSpecs,
     spec,
     specs,
   },

@@ -1,22 +1,27 @@
 input StoreDashInput {
-  aggregateBy: [String]
-  fields: [String]
+  appName: String!
+  appVersion: String
+  region: String
+  production: Boolean
+  metricName: String!
   from: String!
+  to: String!
   interval: String
   operation: String
+  fields: [String]
+  aggregateBy: [String]
   size: Int
   timezone: String
-  to: String!
 }
 
-type Layout {
+type LayoutWithSpecs {
   specLocator: SpecLocator
   spec: String
 }
 
-type LayoutContainer {
+type LayoutWithSpecsContainer {
   cacheId: ID
-  layout: [Layout]
+  layoutWithSpecs: [LayoutWithSpecs]
 }
 
 type SpecLocator {
@@ -33,14 +38,13 @@ type Query {
   appsWithStats: [String]
 
   data (
-    appId: String!,
     name: String!,
     params: StoreDashInput
   ): String @cacheControl(scope: PRIVATE)
 
-  layout (
+  layoutWithSpecs (
     appName: String!
-  ): LayoutContainer
+  ): LayoutWithSpecsContainer
 
   spec (
     specName: String!,
@@ -63,17 +67,17 @@ type Mutation {
     specName: String!
   ): Boolean
 
-  addSpecToLayout (
+  addSpecToLayoutWithSpecs (
     appName: String!
     specLocator: SpecLocatorInput!
-  ): LayoutContainer
+  ): LayoutWithSpecsContainer
 
-  saveLayout (
+  saveLayoutWithSpecs (
     appName: String!
     specLocators: [SpecLocatorInput!]!
-  ): LayoutContainer
+  ): LayoutWithSpecsContainer
 
-  resetLayout (
+  resetLayoutWithSpecs (
     appName: String!
-  ): LayoutContainer
+  ): LayoutWithSpecsContainer
 }
