@@ -1,6 +1,6 @@
 import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
 import { parse as parseCookie } from 'cookie'
-import { addMeanProperty, getTransformedParams, renameProperties } from './utils'
+import { addMeanProperty, getTransformedParams, renameProperties, transformDataFormat } from './utils'
 
 
 export class StoreDashDataSource extends RESTDataSource {
@@ -9,10 +9,11 @@ export class StoreDashDataSource extends RESTDataSource {
   }
 
   public data = async (namespace: string, name: string, params: StoreDashInput) => {
-    const transformed: any = getTransformedParams(params)
-    let responseData = await this.get(`/${namespace}/${name}?`, transformed)
+    const transformedParams: any = getTransformedParams(params)
+    let responseData = await this.get(`/${namespace}/${name}?`, transformedParams)
     responseData = renameProperties('data.', responseData)
     addMeanProperty(responseData, params.metricName)
+    responseData = transformDataFormat(responseData, transformedParams)
     return responseData
   }
 

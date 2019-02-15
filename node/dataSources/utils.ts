@@ -1,7 +1,25 @@
-import { adjust, curry, forEachObjIndexed, fromPairs, includes, isEmpty, isNil, join, map, pipe, reject, replace, toPairs } from 'ramda'
+import { adjust, curry, forEach, forEachObjIndexed, fromPairs, has, includes, isEmpty, isNil, join, map, pipe, reject, replace, toPairs } from 'ramda'
 
 
-export const getTransformedParams: any = (params: StoreDashInput) => {
+interface Params {
+  [param: string]: string
+}
+
+interface LabelValue {
+  label: string,
+  value: number
+}
+
+interface DataPerStatusCode {
+  [httpStatus: string]: LabelValue[]
+}
+
+interface DataNewFormat {
+  name: string,
+  data: LabelValue[]
+}
+
+export const getTransformedParams = (params: StoreDashInput): Params => {
   const {
     appName = '',
     appVersion = '',
@@ -63,13 +81,13 @@ const calculateMeanForArray = (chartData: any[], metrics: string[], metricName: 
 // routeStats
 const calculateMeanForArrayOfCustom = (chartData: any[]) => {
   return map((chartPoint: any) => {
-    let meanLatency = chartPoint['summary.sum']
+    let mean = chartPoint['summary.sum']
     if (chartPoint.count) {
-      meanLatency /= chartPoint.count
+      mean /= chartPoint.count
     }
     return {
       ...chartPoint,
-      meanLatency,
+      mean,
     }
   }, chartData)
 }
@@ -85,4 +103,44 @@ export const addMeanProperty = (data: object[], metricName: string) => {
   // else {
   //   calculateMeanForArrayOfCustom(data)
   // }
+}
+
+const updateDataPerStatusCode = (dataPerStatusCode: DataPerStatusCode, data: any): void => {
+  const httpStatus: string = data['key.httpStatus']
+  if (!has(httpStatus, dataPerStatusCode)) {
+    dataPerStatusCode[httpStatus] = []
+  }
+  dataPerStatusCode[httpStatus].push({ label: data.date, value: data['summary.count'] })
+}
+
+const addDataInNewFormat = (dataNewFormat: DataNewFormat[], value: LabelValue[], key: string): void => {
+  dataNewFormat.push({ name: key, data: value })
+}
+
+const createHttpStatusTimeSeriesFormat = (data: object[]): DataNewFormat[] => {
+  const dataPerStatusCode: DataPerStatusCode = {}
+  forEach(
+    curry(updateDataPerStatusCode)(dataPerStatusCode)
+    , data
+  )
+
+  const dataNewFormat: DataNewFormat[] = []
+  forEachObjIndexed(
+    curry(addDataInNewFormat)(dataNewFormat)
+    , dataPerStatusCode
+  )
+
+  return dataNewFormat
+}
+
+const isHttpStatusTimeSeries = (params: Params) => {
+  return has('interval', params) && // is a timeseries
+         has('aggregateBy', params) && includes('data.key.httpStatus', params.aggregateBy) // is about http status code
+}
+
+export const transformDataFormat = (data: object[], params: Params): object[] => {
+  if (isHttpStatusTimeSeries(params)) {
+    return createHttpStatusTimeSeriesFormat(data)
+  }
+  return data
 }
