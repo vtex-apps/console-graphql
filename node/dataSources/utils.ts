@@ -5,6 +5,10 @@ interface Params {
   [param: string]: string
 }
 
+interface TotalInDates {
+  [date: string]: number
+}
+
 interface LabelValue {
   label: string,
   value: number
@@ -105,28 +109,42 @@ export const addMeanProperty = (data: object[], metricName: string) => {
   // }
 }
 
-const updateDataPerStatusCode = (dataPerStatusCode: DataPerStatusCode, data: any): void => {
+const updateDataPerStatusCode = (dataPerStatusCode: DataPerStatusCode, totalInDates: TotalInDates, data: any): void => {
   const httpStatus: string = data['key.httpStatus']
+  const date: string = data.date
+  const count: number = data['summary.count']
+
   if (!has(httpStatus, dataPerStatusCode)) {
     dataPerStatusCode[httpStatus] = []
   }
-  dataPerStatusCode[httpStatus].push({ label: data.date, value: data['summary.count'] })
+  dataPerStatusCode[httpStatus].push({ label: date, value: count })
+
+  if (!has(date, totalInDates)) {
+    totalInDates[date] = 0
+  }
+  totalInDates[date] += count
 }
 
-const addDataInNewFormat = (dataNewFormat: DataNewFormat[], value: LabelValue[], key: string): void => {
-  dataNewFormat.push({ name: key, data: value })
+const changeValueFromAbsoluteToRelative = (totalInDates: TotalInDates, dataPoint: LabelValue): void => {
+  dataPoint.value /= totalInDates[dataPoint.label]
+}
+
+const addDataInNewFormat = (dataNewFormat: DataNewFormat[], totalInDates: TotalInDates, data: LabelValue[], name: string): void => {
+  forEach(curry(changeValueFromAbsoluteToRelative)(totalInDates), data)
+  dataNewFormat.push({ name, data })
 }
 
 const createHttpStatusTimeSeriesFormat = (data: object[]): DataNewFormat[] => {
+  const totalInDates: TotalInDates = {}
   const dataPerStatusCode: DataPerStatusCode = {}
   forEach(
-    curry(updateDataPerStatusCode)(dataPerStatusCode)
+    curry(updateDataPerStatusCode)(dataPerStatusCode, totalInDates)
     , data
   )
 
   const dataNewFormat: DataNewFormat[] = []
   forEachObjIndexed(
-    curry(addDataInNewFormat)(dataNewFormat)
+    curry(addDataInNewFormat)(dataNewFormat, totalInDates)
     , dataPerStatusCode
   )
 
