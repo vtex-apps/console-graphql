@@ -2,7 +2,7 @@ input StoreDashInput {
   appName: String!
   appVersion: String
   region: String
-  production: Boolean
+  production: String
   metricName: String!
   from: String!
   to: String!

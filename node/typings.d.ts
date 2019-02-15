@@ -19,7 +19,7 @@ declare global {
     appName: string
     appVersion?: string
     region?: 'aws-us-east-1' | 'aws-us-east-2'
-    production?: boolean
+    production?: string
     metricName: string
     from: string
     to: string
