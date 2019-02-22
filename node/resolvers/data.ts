@@ -1,14 +1,14 @@
 interface Args {
+  namespace: string,
   name: string,
   params: StoreDashInput
+  transformationType: string
 }
 
-const NAMESPACE = 'colossus'
-
 export const data = async (_, args: Args, ctx: Context) => {
-  const {dataSources: {storeDash}} = ctx
-  const {name, params} = args
+  const { dataSources: { storeDash } } = ctx
+  const { namespace, name, params, transformationType } = args
 
-  return storeDash.data(NAMESPACE, name, params)
+  return storeDash.data(namespace, name, params, transformationType)
     .then(JSON.stringify)
 }

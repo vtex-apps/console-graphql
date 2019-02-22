@@ -8,12 +8,12 @@ export class StoreDashDataSource extends RESTDataSource {
     super()
   }
 
-  public data = async (namespace: string, name: string, params: StoreDashInput) => {
+  public data = async (namespace: string, name: string, params: StoreDashInput, transformationType: string) => {
     const transformedParams: any = getTransformedParams(params)
     let responseData = await this.get(`/${namespace}/${name}?`, transformedParams)
     responseData = renameProperties('data.', responseData)
     addMeanProperty(responseData, params.metricName)
-    responseData = transformDataFormat(responseData, transformedParams)
+    responseData = transformDataFormat(responseData, transformedParams, transformationType)
     return responseData
   }
 

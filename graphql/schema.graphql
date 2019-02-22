@@ -38,8 +38,10 @@ type Query {
   appsWithStats: [String]
 
   data (
+    namespace: String!,
     name: String!,
-    params: StoreDashInput
+    params: StoreDashInput,
+    transformationType: String!,
   ): String @cacheControl(scope: PRIVATE)
 
   layoutWithSpecs (

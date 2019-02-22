@@ -1,4 +1,26 @@
-import { adjust, curry, forEach, forEachObjIndexed, fromPairs, has, includes, isEmpty, isNil, join, map, pipe, reject, replace, toPairs } from 'ramda'
+import {
+  adjust,
+  curry,
+  filter,
+  forEach,
+  forEachObjIndexed,
+  fromPairs,
+  groupBy,
+  has,
+  includes,
+  isEmpty,
+  isNil,
+  join,
+  keys,
+  map,
+  pipe,
+  reject,
+  replace,
+  startsWith,
+  toPairs,
+} from 'ramda'
+
+import { Fraction, UType } from './typings'
 
 
 interface Params {
@@ -153,12 +175,121 @@ const createHttpStatusTimeSeriesFormat = (data: object[]): DataNewFormat[] => {
 
 const isHttpStatusTimeSeries = (params: Params) => {
   return has('interval', params) && // is a timeseries
-         has('aggregateBy', params) && includes('data.key.httpStatus', params.aggregateBy) // is about http status code
+    has('aggregateBy', params) && includes('data.key.httpStatus', params.aggregateBy) // is about http status code
 }
 
-export const transformDataFormat = (data: object[], params: Params): object[] => {
-  if (isHttpStatusTimeSeries(params)) {
-    return createHttpStatusTimeSeriesFormat(data)
+const transformToSimpleDateFormat = (data: any[]): UType => {
+  return map(
+    (element: any) => {
+      const fraction: Fraction = {}
+      fraction.id = element.date
+      fraction.slices = []
+
+      const desiredKeys = filter(
+        (key: string) => {
+          return startsWith('summary', key)
+        }
+        , keys(element))
+
+      forEach(
+        (key: string) => {
+          fraction.slices.push(
+            {
+              content: [
+                {
+                  key,
+                  value: element[key],
+                },
+              ],
+              sliceId: [],
+            }
+          )
+        }
+        , desiredKeys)
+      return fraction
+    }
+    , data)
+}
+
+const transformToRouteStatsBarChartFormat = (data: any[]): UType => {
+  return map(
+    ({ 'key.httpStatus': httpStatus, 'summary.count': count }: any) => {
+      const fraction: Fraction = {}
+      fraction.id = httpStatus
+      fraction.slices = [
+        {
+          content: [
+            {
+              key: 'count',
+              value: count,
+            },
+          ],
+          sliceId: [],
+        },
+      ]
+      return fraction
+    }
+    , data)
+}
+
+const transformToStatusCodeLineChartFormat = (data: any[]): UType => {
+  const aggregateByDate = groupBy(
+    (element: any) => {
+      return element.date
+    }
+    , data)
+
+  const fractions: UType = []
+
+  forEachObjIndexed(
+    (elementsFromDate: any[], date: string) => {
+      fractions.push(
+        {
+          id: date,
+          slices: [],
+        }
+      )
+      const lastIndex = fractions.length - 1
+      forEach(
+        (slice: any) => {
+          fractions[lastIndex].slices.push(
+            {
+              content: [
+                {
+                  key: 'summary.count',
+                  value: slice['summary.count'],
+                },
+              ],
+              sliceId: [
+                {
+                  key: 'httpStatus',
+                  value: slice['key.httpStatus'],
+                },
+              ],
+            }
+          )
+        }
+        , elementsFromDate)
+    }
+    , aggregateByDate)
+
+  return fractions
+}
+
+export const transformDataFormat = (data: object[], params: Params, transformationType: string): UType => {
+  // if (isHttpStatusTimeSeries(params)) {
+  //   return createHttpStatusTimeSeriesFormat(data)
+  // }
+
+  switch (transformationType) {
+    case 'CpuUsageLineChart':
+    case 'MemoryUsageLineChart':
+      return transformToSimpleDateFormat(data)
+    case 'StatusCodeBarChart':
+      return transformToRouteStatsBarChartFormat(data)
+    case 'StatusCodeLineChart':
+      return transformToStatusCodeLineChartFormat(data)
+    default:
+      return data
   }
-  return data
 }
