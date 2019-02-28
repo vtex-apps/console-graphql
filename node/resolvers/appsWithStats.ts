@@ -1,5 +1,4 @@
-import { filter, includes, map, pluck, prop, replace, startsWith } from 'ramda'
-
+import { filter, map, pluck, prop, replace, startsWith } from 'ramda'
 
 const filterAppNameByAccount = (appNameList: string[], accountName: string) => {
   return filter(startsWith(accountName), appNameList)

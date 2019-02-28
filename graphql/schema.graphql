@@ -2,7 +2,7 @@ input StoreDashInput {
   appName: String!
   appVersion: String
   region: String
-  production: Boolean
+  production: String
   metricName: String!
   from: String!
   to: String!
@@ -14,70 +14,13 @@ input StoreDashInput {
   timezone: String
 }
 
-type LayoutWithSpecs {
-  specLocator: SpecLocator
-  spec: String
-}
-
-type LayoutWithSpecsContainer {
-  cacheId: ID
-  layoutWithSpecs: [LayoutWithSpecs]
-}
-
-type SpecLocator {
-  appId: String
-  specName: String
-}
-
-input SpecLocatorInput {
-  appId: String
-  specName: String
-}
-
 type Query {
   appsWithStats: [String]
 
   data (
+    namespace: String!,
     name: String!,
-    params: StoreDashInput
+    params: StoreDashInput,
+    transformationType: String!,
   ): String @cacheControl(scope: PRIVATE)
-
-  layoutWithSpecs (
-    appName: String!
-  ): LayoutWithSpecsContainer
-
-  spec (
-    specName: String!,
-    appId: String
-  ): String
-
-  """ custom.json """
-  specs: [SpecLocator]
-}
-
-type Mutation {
-  """ Vira um spec custom """
-  createSpec (
-    specName: String!,
-    serializedSchema: String!
-  ): Boolean
-
-  """ Deleta Custom Spec """
-  deleteSpec (
-    specName: String!
-  ): Boolean
-
-  addSpecToLayoutWithSpecs (
-    appName: String!
-    specLocator: SpecLocatorInput!
-  ): LayoutWithSpecsContainer
-
-  saveLayoutWithSpecs (
-    appName: String!
-    specLocators: [SpecLocatorInput!]!
-  ): LayoutWithSpecsContainer
-
-  resetLayoutWithSpecs (
-    appName: String!
-  ): LayoutWithSpecsContainer
 }
