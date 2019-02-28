@@ -93,10 +93,7 @@ const calculateMeanForArrayOfCustom = (chartData: any[]): void => {
   forEach((chartPoint: any) => {
     const sum: number = chartPoint['summary.sum']
     const count: number = chartPoint['summary.count']
-    let mean = sum
-    if (count) {
-      mean /= count
-    }
+    const mean = count ? (sum / count) : sum
     chartPoint['summary.mean'] = mean
   }, chartData)
 }
