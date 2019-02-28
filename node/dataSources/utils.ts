@@ -108,10 +108,8 @@ export const addMeanProperty = (data: any[], metricName: string) => {
   } else if (metricName === 'cpuUsage') {
     const cpuMetrics = ['summary.system', 'summary.user']
     calculateMeanForArray(data, cpuMetrics, metricName)
-  } else {
-    if (has('summary.sum', data[0])) {
-      calculateMeanForArrayOfCustom(data)
-    }
+  } else if (has('summary.sum', data[0])) {
+    calculateMeanForArrayOfCustom(data)
   }
 }
 
