@@ -2,7 +2,6 @@ import { RequestOptions, RESTDataSource } from 'apollo-datasource-rest'
 import { parse as parseCookie } from 'cookie'
 import { addMeanProperty, changeToRelative, getTransformedParams, renameProperties, transformDataFormat } from './utils'
 
-
 export class StoreDashDataSource extends RESTDataSource {
   constructor() {
     super()
