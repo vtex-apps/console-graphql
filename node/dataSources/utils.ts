@@ -22,27 +22,12 @@ import {
 
 import { Fraction, UType } from './typings'
 
-
 interface Params {
   [param: string]: string
 }
 
-interface TotalInDates {
+interface Total {
   [date: string]: number
-}
-
-interface LabelValue {
-  label: string,
-  value: number
-}
-
-interface DataPerStatusCode {
-  [httpStatus: string]: LabelValue[]
-}
-
-interface DataNewFormat {
-  name: string,
-  data: LabelValue[]
 }
 
 export const getTransformedParams = (params: StoreDashInput): Params => {
@@ -97,85 +82,85 @@ const calculateMeanForObject = (metrics: string[], metricName: string, value: an
 // function to calculate mean of metrics different than custom format such
 // as memoryUsage and cpuUsage
 const calculateMeanForArray = (chartData: any[], metrics: string[], metricName: string) => {
-  return map((chartPoint: any) => {
+  forEach((chartPoint: any) => {
     forEachObjIndexed(curry(calculateMeanForObject)(metrics, metricName), chartPoint)
-    return chartPoint
   }, chartData)
 }
 
 // function to calculate mean of metrics in the custom format such as
 // routeStats
-const calculateMeanForArrayOfCustom = (chartData: any[]) => {
-  return map((chartPoint: any) => {
-    let mean = chartPoint['summary.sum']
-    if (chartPoint.count) {
-      mean /= chartPoint.count
+const calculateMeanForArrayOfCustom = (chartData: any[]): void => {
+  forEach((chartPoint: any) => {
+    const sum: number = chartPoint['summary.sum']
+    const count: number = chartPoint['summary.count']
+    let mean = sum
+    if (count) {
+      mean /= count
     }
-    return {
-      ...chartPoint,
-      mean,
-    }
+    chartPoint['summary.mean'] = mean
   }, chartData)
 }
 
-export const addMeanProperty = (data: object[], metricName: string) => {
+export const addMeanProperty = (data: any[], metricName: string) => {
   if (metricName === 'memoryUsage') {
     const memoryMetrics = ['summary.external', 'summary.heapUsed', 'summary.heapTotal', 'summary.rss']
     calculateMeanForArray(data, memoryMetrics, metricName)
   } else if (metricName === 'cpuUsage') {
     const cpuMetrics = ['summary.system', 'summary.user']
     calculateMeanForArray(data, cpuMetrics, metricName)
+  } else {
+    if (has('summary.sum', data[0])) {
+      calculateMeanForArrayOfCustom(data)
+    }
   }
-  // else {
-  //   calculateMeanForArrayOfCustom(data)
-  // }
 }
 
-const updateDataPerStatusCode = (dataPerStatusCode: DataPerStatusCode, totalInDates: TotalInDates, data: any): void => {
-  const httpStatus: string = data['key.httpStatus']
-  const date: string = data.date
-  const count: number = data['summary.count']
-
-  if (!has(httpStatus, dataPerStatusCode)) {
-    dataPerStatusCode[httpStatus] = []
-  }
-  dataPerStatusCode[httpStatus].push({ label: date, value: count })
-
-  if (!has(date, totalInDates)) {
-    totalInDates[date] = 0
-  }
-  totalInDates[date] += count
-}
-
-const changeValueFromAbsoluteToRelative = (totalInDates: TotalInDates, dataPoint: LabelValue): void => {
-  dataPoint.value /= totalInDates[dataPoint.label]
-}
-
-const addDataInNewFormat = (dataNewFormat: DataNewFormat[], totalInDates: TotalInDates, data: LabelValue[], name: string): void => {
-  forEach(curry(changeValueFromAbsoluteToRelative)(totalInDates), data)
-  dataNewFormat.push({ name, data })
-}
-
-const createHttpStatusTimeSeriesFormat = (data: object[]): DataNewFormat[] => {
-  const totalInDates: TotalInDates = {}
-  const dataPerStatusCode: DataPerStatusCode = {}
+const changeToRelativeForStatusCodeLineChart = (data: any[]): any[] => {
+  const total: Total = {}
   forEach(
-    curry(updateDataPerStatusCode)(dataPerStatusCode, totalInDates)
+    (dataPoint: any) => {
+      const date: string = dataPoint.date
+      if (!has(date, total)) {
+        total[date] = 0
+      }
+      total[date] += dataPoint['summary.count']
+    }
     , data
   )
-
-  const dataNewFormat: DataNewFormat[] = []
-  forEachObjIndexed(
-    curry(addDataInNewFormat)(dataNewFormat, totalInDates)
-    , dataPerStatusCode
+  forEach(
+    (dataPoint: any) => {
+      dataPoint['summary.ratio'] = dataPoint['summary.count'] / total[dataPoint.date]
+    }
+    , data
   )
-
-  return dataNewFormat
+  return data
 }
 
-const isHttpStatusTimeSeries = (params: Params) => {
-  return has('interval', params) && // is a timeseries
-    has('aggregateBy', params) && includes('data.key.httpStatus', params.aggregateBy) // is about http status code
+const changeToRelativeForStatusCodeBarChart = (data: object[]): any[] => {
+  let total: number = 0
+  forEach(
+    (dataPoint: any) => {
+      total += dataPoint['summary.count']
+    }
+    , data
+  )
+  forEach(
+    (dataPoint: any) => {
+      dataPoint['summary.ratio'] = dataPoint['summary.count'] / total
+    }
+    , data)
+  return data
+}
+
+export const changeToRelative = (data: object[], transformationType: string): any[] => {
+  switch (transformationType) {
+    case 'StatusCodeBarChart':
+      return changeToRelativeForStatusCodeBarChart(data)
+    case 'StatusCodeLineChart':
+      return changeToRelativeForStatusCodeLineChart(data)
+    default:
+      return data
+  }
 }
 
 const transformToSimpleDateFormat = (data: any[]): UType => {
@@ -197,7 +182,7 @@ const transformToSimpleDateFormat = (data: any[]): UType => {
             {
               content: [
                 {
-                  key,
+                  key: replace('summary.', '', key),
                   value: element[key],
                 },
               ],
@@ -213,15 +198,15 @@ const transformToSimpleDateFormat = (data: any[]): UType => {
 
 const transformToRouteStatsBarChartFormat = (data: any[]): UType => {
   return map(
-    ({ 'key.httpStatus': httpStatus, 'summary.count': count }: any) => {
+    ({ 'key.httpStatus': httpStatus, 'summary.ratio': ratio }: any) => {
       const fraction: Fraction = {}
       fraction.id = httpStatus
       fraction.slices = [
         {
           content: [
             {
-              key: 'count',
-              value: count,
+              key: 'ratio',
+              value: ratio,
             },
           ],
           sliceId: [],
@@ -232,7 +217,7 @@ const transformToRouteStatsBarChartFormat = (data: any[]): UType => {
     , data)
 }
 
-const transformToStatusCodeLineChartFormat = (data: any[]): UType => {
+const transformToAggregatedLineChartFormat = (data: any[], key: string): UType => {
   const aggregateByDate = groupBy(
     (element: any) => {
       return element.date
@@ -256,8 +241,8 @@ const transformToStatusCodeLineChartFormat = (data: any[]): UType => {
             {
               content: [
                 {
-                  key: 'summary.count',
-                  value: slice['summary.count'],
+                  key,
+                  value: slice[`summary.${key}`],
                 },
               ],
               sliceId: [
@@ -276,11 +261,7 @@ const transformToStatusCodeLineChartFormat = (data: any[]): UType => {
   return fractions
 }
 
-export const transformDataFormat = (data: object[], params: Params, transformationType: string): UType => {
-  // if (isHttpStatusTimeSeries(params)) {
-  //   return createHttpStatusTimeSeriesFormat(data)
-  // }
-
+export const transformDataFormat = (data: object[], transformationType: string): UType => {
   switch (transformationType) {
     case 'CpuUsageLineChart':
     case 'MemoryUsageLineChart':
@@ -288,7 +269,9 @@ export const transformDataFormat = (data: object[], params: Params, transformati
     case 'StatusCodeBarChart':
       return transformToRouteStatsBarChartFormat(data)
     case 'StatusCodeLineChart':
-      return transformToStatusCodeLineChartFormat(data)
+      return transformToAggregatedLineChartFormat(data, 'ratio')
+    case 'LatencyLineChart':
+      return transformToAggregatedLineChartFormat(data, 'mean')
     default:
       return data
   }
