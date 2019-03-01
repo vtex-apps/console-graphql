@@ -23,4 +23,8 @@ type Query {
     params: StoreDashInput,
     transformationType: String!,
   ): String @cacheControl(scope: PRIVATE)
+
+  appVersions(
+    appName: String!
+  ): [String]
 }
