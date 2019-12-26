@@ -10,7 +10,8 @@
   },
   "builders": {
     "node": "3.x",
-    "graphql": "1.x"
+    "graphql": "1.x",
+    "docs": "0.x"
   },
   "credential": "relative",
   "policies": [
@@ -30,5 +31,6 @@
         "path": "/api/storedash/{{account}}/metrics/*"
       }
     }
-  ]
+  ],
+  "$schema": "https://raw.githubusercontent.com/vtex/node-vtex-api/master/gen/manifest.schema"
 }
